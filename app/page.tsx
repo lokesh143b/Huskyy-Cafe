@@ -1,65 +1,139 @@
-import Image from "next/image";
+"use client";
 
+import Image, { StaticImageData } from "next/image";
+import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+
+import { allCoffees, Coffee } from "../data/coffeeData";
+
+import CoffeeCard from "@/components/CoffeeCard";
+import WhyOurCoffee from "@/components/WhyOurCoffee";
+import Reviews from "@/components/Reviews";
+
+// -----------------------------
+// Home Component
+// -----------------------------
 export default function Home() {
+  const [displayImages, setDisplayImages] = useState<StaticImageData[]>([
+    allCoffees[0].image,
+    allCoffees[1].image,
+    allCoffees[2].image,
+  ]);
+
+  const router = useRouter();
+
+  // Rotate images every 4 seconds (hero floating effect)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setDisplayImages((prev) => {
+        const arr = [...prev];
+        const first = arr.shift();
+        arr.push(first!);
+        return arr;
+      });
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <>
+      {/* HERO SECTION */}
+      <section className="relative min-h-screen flex flex-col md:flex-row items-center justify-between px-6 md:px-24 py-20 pt-36 overflow-hidden z-10">
+        {/* LEFT TEXT */}
+        <div className="relative z-10 md:w-1/2 space-y-6 text-center md:text-left">
+          <motion.h1
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 1 }}
+            className="text-4xl sm:text-5xl md:text-6xl font-bold text-white leading-tight"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            Your Daily <br />
+            <span className="text-amber-400">Coffee Ritual</span>
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 1, delay: 0.2 }}
+            className="text-white text-base sm:text-lg max-w-md mx-auto md:mx-0"
           >
-            Documentation
-          </a>
+            Handcrafted coffee made from carefully roasted beans, brewed fresh
+            every morning.
+          </motion.p>
+
+          <motion.button
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1, delay: 0.4 }}
+            onClick={() => router.push("/menu")}
+            className="bg-[#3b2a20] text-white px-8 py-3 rounded-lg hover:bg-[#2a1d16] transition mx-auto md:mx-0 block cursor-pointer"
+          >
+            Explore Menu
+          </motion.button>
         </div>
-      </main>
-    </div>
+
+        {/* RIGHT FLOATING HERO IMAGES */}
+        <div className="md:w-1/2 flex justify-center gap-6 sm:gap-8 flex-wrap mt-12 md:mt-0 relative z-10">
+          {displayImages.map((img, index) => (
+            <motion.div
+              key={index}
+              animate={{ y: [0, -12, 0] }}
+              transition={{
+                duration: 4 + index,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+              whileHover={{ scale: 1.1, y: -10, zIndex: 30 }}
+              className="relative rounded-2xl overflow-hidden w-40 h-40 sm:w-52 sm:h-52 md:w-64 md:h-64 shadow-xl "
+            >
+              <Image
+                src={img}
+                alt={`Coffee ${index}`}
+                fill
+                className="object-cover"
+              />
+              <div className="absolute inset-0 bg-white/0 hover:bg-white/10 transition" />
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* ALL COFFEES SECTION */}
+      <section className="relative z-10 py-20 px-6 md:px-24">
+        <motion.h2
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-3xl md:text-4xl font-bold text-center text-white mb-12"
+        >
+          Our Coffee Menu
+        </motion.h2>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+          {allCoffees.map((coffee: Coffee) => (
+            <motion.div
+              key={coffee.name}
+              onClick={() => router.push(`/coffee/${coffee.name}`)}
+              className="cursor-pointer"
+            >
+              <CoffeeCard
+                name={coffee.name}
+                price={coffee.price}
+                image={coffee.image}
+              />
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* why our coffee section */}
+      <WhyOurCoffee />
+
+      {/* Reviews */}
+      <Reviews />
+    </>
   );
 }
